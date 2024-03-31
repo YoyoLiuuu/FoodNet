@@ -113,8 +113,18 @@ class Graph:
             matrix[v] = {}
             for u in self._vertices:
                 if self._vertices[v].check_connected(u, set()):
-                    matrix[v][u] = nx.shortest_path_length(self.to_networkx(60000), v, u)
+                    matrix[v][u] = nx.shortest_path_length(self.to_networkx(), v, u)
                 else:
                     matrix[v][u] = -1
 
         return matrix
+
+    def init_communities(self) -> set:
+        """
+        Initialize communities with each vertex in a community.
+        """
+        all_communities = set()
+        for item in self._vertices:
+            all_communities.add(frozenset({item}))  # using frozenset since set of set is not supported
+
+        return all_communities
