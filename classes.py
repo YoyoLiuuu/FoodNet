@@ -128,3 +128,39 @@ class Graph:
             all_communities.add(frozenset({item}))  # using frozenset since set of set is not supported
 
         return all_communities
+
+
+class WeightedGraph(Graph):
+    """A graph used to represent a network of communities.
+    """
+    # Private Instance Attributes:
+    #     - _vertices:
+    #         A collection of the vertices contained in this graph.
+    #         Mapping from id to _Community
+    _vertices: dict[int, _Community]
+
+    def __init__(self) -> None:
+        """Initialize an empty graph (no vertices or edges)."""
+        self._vertices = {}
+
+
+class _Community(_Vertex):
+    """
+    A community of artists of graph g. Include 0 to len(g._vertices) of vertices.
+
+    Instance Attributes:
+        - id: the identifier of the community
+        - item: The number of edges within a community.
+        - neighbours: A mapping from the neighbouring community to the number of edges between the two communities
+    """
+    id: int
+    item: int
+    neighbours: dict[_Community, int]
+
+    def __init__(self, id: int, item: int) -> None:
+        """Initialize a new community with the given item.
+        This vertex is initialized with no neighbours.
+        """
+        super().__init__(item)
+        self.id = id
+        self.neighbours = {}
