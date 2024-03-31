@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any
+import matplotlib.pyplot as plt
 import networkx as nx
+import community
 
 class _Vertex:
     """A vertex in a book review graph, used to represent a user or a book.
@@ -98,3 +100,69 @@ class Graph:
                 break
 
         return graph_nx
+
+    def make_community_graph(self, communities: list[set]) -> Graph:
+        """
+        This method shows the social network visually, highlighting the communities in the network
+        """
+        comms = set_to_dict(communities)
+        g = self.to_networkx()
+        pos = nx.spring_layout(g)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        nx.draw_networkx_nodes(g, pos, node_size=600, cmap=plt.cm.get_cmap('RdYlBu'),
+                               node_color=list(comms.values()))
+        nx.draw_networkx_edges(g, pos, alpha=0.3)
+        nx.draw(g, with_labels=True)
+        return g
+
+    def one_community(self, communities: list[set], num: int) -> Graph:
+        """
+        This method shows the social network with one community highlighted above others
+
+        Preconditions:
+        - 0 <= num < len(communities)
+        """
+        comms = set_to_dict(communities)
+        vertex_size = []
+        g = self.to_networkx()
+        pos = nx.spring_layout(g)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        for node, community in comms.items():
+            if community == num:
+                vertex_size.append(900)
+            else:
+                comms[node] = 0
+                vertex_size.append(300)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        nodes = nx.draw_networkx_nodes(g, pos, node_size=vertex_size, cmap=plt.colormaps.get_cmap('winter'),
+                                       node_color=list(comms.values()))
+        nx.draw_networkx_edges(g, pos, alpha=0.3)
+        nx.draw(g, with_labels=True)
+        return g
+
+def set_to_dict(communities:list[set]) -> dict:
+    dct = {}
+    for i in range(0, len(communities)):
+        for node in communities[i]:
+            dct[node] = i
+    return dct
+
+def test():
+    """
+    Test function
+    """
+    G = nx.karate_club_graph()  # load a default graph
+
+    partition = community.best_partition(G)  # compute communities
+
+    pos = nx.spring_layout(G)  # compute graph layout
+    plt.figure(figsize=(8, 8))  # image is 8 x 8 inches
+    plt.axis('off')
+    nx.draw_networkx_nodes(G, pos, node_size=600, cmap=plt.colormaps.get_cmap('RdYlBu'), node_color=list(partition.values()))
+    nx.draw_networkx_edges(G, pos, alpha=0.3)
+    nx.draw(G, with_labels=True)
+    # plt.show(G)
+    return G
