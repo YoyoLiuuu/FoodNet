@@ -147,21 +147,7 @@ class Graph:
 
     def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
-        Make the adjacent matrix used for Louvain calculation.
-
-        matrix = {}
-        # make a dictionary for each vertex v such that the dictionary is in the format:
-        # keys = u.item for all vertices in graph
-        # values = the distance between u and v, -1 if they are not connected (if u = v, the value is 0)
-        for v in self._vertices:
-            matrix[v] = {}
-            for u in self._vertices:
-                if self._vertices[v].check_connected(u, set()):
-                    matrix[v][u] = nx.shortest_path_length(self.to_networkx(), v, u)
-                else:
-                    matrix[v][u] = -1
-
-        return matrix
+        Make the adjacent matrix used for Louvain calculation, 1 if there's an edge between the vertices, 0 otherwise.
         """
         matrix = {}
         for v in self._vertices.values():
@@ -273,7 +259,7 @@ class WeightedGraph(Graph):
         """
         Return the modularity of the current partitioning of communities in graph
         """
-        k_v = sum(v.neighbours.values())
+        k_v = sum([v.neighbours.values()])
         total_sum = 0
 
         for u in self._vertices.values():
@@ -281,7 +267,7 @@ class WeightedGraph(Graph):
                 delta = 1
             else:
                 delta = 0
-            k_u = sum(u.neighbours.values())
+            k_u = sum([u.neighbours.values()])
 
             adjacent_score = adjacency_matrix[v.item][u.item]
 
