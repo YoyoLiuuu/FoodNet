@@ -142,19 +142,22 @@ class Graph:
         plt.show()
         return g
 
-    def test(self):
-        """
-        Test function
-        """
-        G = nx.karate_club_graph()  # load a default graph
+def get_length(communities:list[set]) ->int:
+    """Returns the number of communities in the network
+    """
+    return len(communities)
 
-        partition = community.best_partition(G)  # compute communities
+def test():
+    """
+    Test function
+    """
+    G = nx.karate_club_graph()  # load a default graph
 
-        pos = nx.spring_layout(G)  # compute graph layout
-        plt.figure(figsize=(8, 8))  # image is 8 x 8 inches
-        plt.axis('off')
-        nx.draw_networkx_nodes(G, pos, node_size=600, cmap=plt.colormaps.get_cmap('RdYlBu'), node_color=list(partition.values()))
-        nx.draw_networkx_edges(G, pos, alpha=0.3)
-        nx.draw_networkx_labels(G, pos, labels={x: x for x in self._vertices})
-        plt.show()
-        return G
+    pos = nx.spring_layout(G)  # compute graph layout
+    plt.figure(figsize=(8, 8))  # image is 8 x 8 inches
+    plt.axis('off')
+    nx.draw_networkx_nodes(G, pos, node_size=600, cmap=plt.colormaps.get_cmap('RdYlBu'), node_color=list(partition.values()))
+    nx.draw_networkx_edges(G, pos, alpha=0.3)
+    nx.draw_networkx_labels(G, pos)
+    plt.show()
+    return G
