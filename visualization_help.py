@@ -8,8 +8,8 @@ def set_to_dict(communities: list[set]) -> dict:
 
 """def test():
     """
-Test
-function
+# Test
+# function
 """
 G = nx.karate_club_graph()  # load a default graph
 

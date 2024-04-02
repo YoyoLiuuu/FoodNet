@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Any, Union
 import matplotlib.pyplot as plt
 import networkx as nx
-import community
 import csv
 from visualization_help import set_to_dict
 
@@ -179,6 +178,8 @@ class Graph:
         k_v = len(v.neighbours)
         total_sum = 0
 
+        print(communities)
+
         for u in self._vertices.values():
             if communities[v] == communities[u]:
                 delta = 1
@@ -248,6 +249,7 @@ class _Community(_Vertex):
         super().__init__(item)
         self.inner_weight = weight
         self.members = members
+
 
 class WeightedGraph(Graph):
     """A graph used to represent a network of communities.

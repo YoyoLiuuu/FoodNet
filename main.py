@@ -3,6 +3,7 @@ import pre_processing
 import visualize_graph
 import sys
 from random import randint
+from louvain import louvain_algorithm_init
 
 sys.setrecursionlimit(60000)  # change recursion limit so recursion error doesn't occur
 
@@ -22,4 +23,7 @@ score = graph.calculate_modularity_graph(communities, adjacent_matrix)
 
 print(score)
 
+new_communities, modularity = louvain_algorithm_init(graph, adjacent_matrix)
+
+print(new_communities, modularity)
 # communities visualization
