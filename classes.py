@@ -3,7 +3,7 @@ from typing import Any, Union, Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 import csv
-from helper_functions import set_to_dict
+from visualization_helper import set_to_dict
 
 class _Vertex:
     """A vertex in an artist network graph, used to represent an artist.
@@ -205,6 +205,140 @@ class Graph:
 
         return curr_modularity / (2 * m)
 
+    def create_edges_dict(self) -> dict[int, set]:
+        """
+        Return dictionary with all vertices as keys and empty sets as values
+        """
+        dictionary = {}
+        for v in self._vertices:
+            dictionary[v] = set()
+
+        return dictionary
+
+    def get_inner_edge_weights(self, community: dict[int, _Vertex]) -> int:
+        """
+        Return sum of edge weights in a given community set
+
+        >>> g = WeightedGraph()
+        >>> for i in range(1, 4):
+        ...     g.add_vertex(i)
+        >>> g.add_edge(1, 2)
+        >>> g.add_edge(2, 3)
+        >>> g.add_edge(1, 3)
+        >>> comm = {1: g._vertices[1], 2: g._vertices[2]}
+        >>> g.get_inner_edge_weights(comm)
+        1
+        >>> comm = {1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3]}
+        >>> g.get_inner_edge_weights(comm)
+        3
+        >>> g.add_vertex(4)
+        >>> g.add_edge(3, 4)
+        >>> g.get_inner_edge_weights(comm)
+        3
+        >>> comm = {1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3], 4: g._vertices[4]}
+        >>> g.get_inner_edge_weights(comm)
+        4
+        """
+        edges_sum = 0
+        edge_visited = self.create_edges_dict()  # use dictionary to improve runtime
+
+        for v in community:
+            vertex = community[v]
+            for u in vertex.neighbours:
+                # if {vertex, u} not in edge_visited and u.item in community:
+                if u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item in community:
+                    edges_sum += 1
+
+                edge_visited[u.item].add(v)
+                edge_visited[v].add(u.item)
+
+        return edges_sum
+
+    def get_all_outer_edges(self, communities_lst: list[dict[int, _Vertex]]) -> list[set]:
+        """
+        Return a list of all outer edges in a graph given a list of communities
+        >>> g = WeightedGraph()
+        >>> for i in range(1, 6):
+        ...     g.add_vertex(i)
+        >>> g.add_edge(1, 2)
+        >>> g.add_edge(2, 3)
+        >>> g.add_edge(1, 3)
+        >>> g.add_edge(3, 4)
+        >>> g.add_edge(4, 5)
+        >>> g.add_edge(5, 2)
+        >>> community1 = {1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3]}
+        >>> community2 = {4: g._vertices[4], 5: g._vertices[5]}
+        >>> lst = g.get_all_outer_edges([community1, community2])
+        >>> lst == [{3, 4}, {5, 2}] or lst == [{2, 5}, {3, 4}]
+        True
+        """
+        all_outer_edges = []
+
+        for c in communities_lst:
+            all_outer_edges.extend([edge for edge in self.get_outer_edges(c) if edge not in all_outer_edges])
+
+        return all_outer_edges
+
+    def get_outer_edges(self, community: dict[int, _Vertex]) -> list[set]:
+        """
+        Returns a list of sets, where the sets are outer edges
+
+        >>> g = WeightedGraph()
+        >>> for i in range(1, 5):
+        ...     g.add_vertex(i)
+        >>> g.add_edge(1, 2)
+        >>> g.add_edge(2, 3)
+        >>> g.add_edge(1, 3)
+        >>> g.add_edge(3, 4)
+        >>> comm = {1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3]}
+        >>> g.get_outer_edges(comm)
+        [{3, 4}]
+        """
+        outer_edges = []
+        edge_visited = self.create_edges_dict()
+
+        for v in community:
+            vertex = community[v]
+            for u in vertex.neighbours:
+                if u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item not in community:
+                    outer_edges.append({v, u.item})
+
+                edge_visited[u.item].add(v)
+                edge_visited[v].add(u.item)
+
+        return outer_edges
+
+    def make_community_dicts(self, communities: dict[int, int]) -> list[dict[int, _Vertex]]:
+        """
+        Return a list of all the communites with its memebers in separate dictionaries with the item
+        as the key and the _vertex object as the value
+        >>> communities_dict = {1: 0, 2: 0, 3: 0, 4: 1, 5: 2}
+        >>> g = WeightedGraph()
+            >>> for i in range(1, 6):
+            ...     g.add_vertex(i)
+        >>> lst = g.make_community_dicts(communities_dict)
+        >>> lst == [{1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3]}, {4: g._vertices[4]}, {5: g._vertices[5]}]
+        True
+        """
+        community_ids = list(set(communities.values()))
+        curr_id = community_ids[0]
+        dict_lst = []
+        community_dict = {}
+
+        for v in communities:
+            if communities[v] != curr_id:
+                curr_id = communities[v]
+                dict_lst.append(community_dict)
+                community_dict = {}
+
+            if communities[v] == curr_id:
+                community_dict[v] = self._vertices[v]
+
+        dict_lst.append(community_dict)
+
+        return dict_lst
+
+
 class _WeightedVertex(_Vertex):
     """A vertex in a social network graph.
 
@@ -233,7 +367,7 @@ class _WeightedVertex(_Vertex):
         return len(self.neighbours)
 
 
-class _Community(_Vertex):
+class _Community(_WeightedVertex):
 
     item: Any
     neighbours: dict[_Vertex, Union[int, float]]
@@ -256,7 +390,7 @@ class WeightedGraph(Graph):
     #     - _vertices:
     #         A collection of the vertices contained in this graph.
     #         Mapping from id to _Community
-    _vertices: dict[int, _Vertex]
+    _vertices: dict[int, _WeightedVertex]
 
     def __init__(self) -> None:
         """Initialize an empty graph (no vertices or edges)."""
@@ -269,7 +403,7 @@ class WeightedGraph(Graph):
         Do nothing if the given item is already in this graph.
         """
         if item not in self._vertices:
-            self._vertices[item] = _Vertex(item)
+            self._vertices[item] = _WeightedVertex(item)
 
     def add_community(self, item: Any, weight: int, members: dict[int: _Vertex]) -> None:
         """
