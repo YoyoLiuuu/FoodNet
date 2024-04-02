@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Optional
 import networkx as nx
+import csv
 
 
 class _Vertex:
@@ -104,7 +105,7 @@ class Graph:
     def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
         Make the adjacent matrix used for Louvain calculation.
-        """
+
         matrix = {}
         # make a dictionary for each vertex v such that the dictionary is in the format:
         # keys = u.item for all vertices in graph
@@ -118,16 +119,62 @@ class Graph:
                     matrix[v][u] = -1
 
         return matrix
-
-    def init_communities(self) -> set:
         """
-        Initialize communities with each vertex in a community.
-        """
-        all_communities = set()
-        for item in self._vertices:
-            all_communities.add(frozenset({item}))  # using frozenset since set of set is not supported
+        matrix = {}
+        for v in self._vertices.values():
+            matrix[v.item] = {}
+            for u in self._vertices.values():
+                if u in v.neighbours:
+                    matrix[v.item][u.item] = 1
+                else:
+                    matrix[v.item][u.item] = 0
 
-        return all_communities
+        return matrix
+
+    def get_num_edges(self) -> int:
+
+        total_degree = 0
+
+        for vertex in self._vertices.values():
+            total_degree += len(vertex.neighbours)
+
+        # since undirected graph
+        return int(total_degree / 2)
+
+    def calculate_modularity_each(self, v: _Vertex, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
+        """
+        Return the modularity of the current partitioning of communities in graph
+        """
+        k_v = len(v.neighbours)
+        total_sum = 0
+
+        for u in self._vertices.values():
+            if communities[v] == communities[u]:
+                delta = 1
+            else:
+                delta = 0
+            k_u = len(u.neighbours)
+
+            adjacent_score = adjacency_matrix[v.item][u.item]
+
+            if adjacent_score != -1 and u != v:
+                adjacent = (adjacent_score - (k_u * k_v) / (2 * m)) * delta
+                total_sum += adjacent
+        return total_sum
+
+    def calculate_modularity_graph(self, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]]) -> float:
+        """
+        Return the modularity score of the graph based on current communities.
+        """
+        m = self.get_num_edges()
+        curr_modularity = 0
+
+        for v in self._vertices.values():
+            curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+
+        return curr_modularity / (2 * m)
 
 
 class WeightedGraph(Graph):

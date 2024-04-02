@@ -2,6 +2,7 @@ from __future__ import annotations
 import pre_processing
 import visualize_graph
 import sys
+from random import randint
 
 sys.setrecursionlimit(60000)  # change recursion limit so recursion error doesn't occur
 
@@ -11,5 +12,12 @@ graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edge
 
 adjacent_matrix = graph.make_adjacent_matrix()
 
-all_communities = graph.init_communities()
+communities = {}
 
+
+for vertex in graph._vertices.values():
+    communities[vertex] = randint(9, 10)
+
+score = graph.calculate_modularity_graph(communities, adjacent_matrix)
+
+print(score)

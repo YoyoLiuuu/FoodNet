@@ -1,5 +1,4 @@
 from classes import _Community, WeightedGraph
-
 def aggregate_communities_from_vertex(all_communities: set[frozenset[int]]) -> (WeightedGraph, set[_Community]):
     """
     The initial function that aggregates a set of _Vertex.

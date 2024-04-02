@@ -3,6 +3,9 @@ import csv
 
 
 def get_graph(vertices: str, edges: str) -> (Graph, dict[str, str]):
+    """
+    docstring
+    """
     g = Graph()
     all_data_vertices = {}
     # with open('fb-pages-artist-nodes.txt', mode='r', encoding='cp437') as file:
@@ -15,9 +18,9 @@ def get_graph(vertices: str, edges: str) -> (Graph, dict[str, str]):
     # with open('fb-pages-artist-edges.txt', mode='r', encoding='cp437') as file:
     with open(edges, mode='r', encoding='cp437') as file:
         reader = csv.reader(file)
-        valid_vertices = all_data_vertices.keys()
+        valid_vertices = [key for key in all_data_vertices]
         for row in reader:
-            if all(vertex in valid_vertices for vertex in row):
-                g.add_edge(row[0], row[1])
+            if all(int(vertex) in valid_vertices for vertex in row):
+                g.add_edge(int(row[0]), int(row[1]))
 
     return g, all_data_vertices
