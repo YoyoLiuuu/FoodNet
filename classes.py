@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import Any, Union
+import matplotlib.pyplot as plt
 import networkx as nx
+import community
 import csv
-
 
 class _Vertex:
     """A vertex in an artist network graph, used to represent an artist.
@@ -101,6 +102,48 @@ class Graph:
                     graph_nx.add_edge(v.item, u.item)
 
         return graph_nx
+
+    def make_community_graph(self, communities: list[set]) -> Graph:
+        """
+        This method shows the social network visually, highlighting the communities in the network
+        """
+        comms = set_to_dict(communities)
+        g = self.to_networkx()
+        pos = nx.spring_layout(g)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        nx.draw_networkx_nodes(g, pos, node_size=600, cmap=plt.cm.get_cmap('RdYlBu'),
+                               node_color=list(comms.values()))
+        nx.draw_networkx_edges(g, pos, alpha=0.3)
+        nx.draw(g, with_labels=True)
+        return g
+
+    def one_community(self, communities: list[set], num: int) -> Graph:
+        """
+        This method shows the social network with one community highlighted above others
+
+        Preconditions:
+        - 0 <= num < len(communities)
+        """
+        comms = set_to_dict(communities)
+        vertex_size = []
+        g = self.to_networkx()
+        pos = nx.spring_layout(g)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        for node, community in comms.items():
+            if community == num:
+                vertex_size.append(900)
+            else:
+                comms[node] = 0
+                vertex_size.append(300)
+        plt.figure(figsize=(10, 10))
+        plt.axis('off')
+        nodes = nx.draw_networkx_nodes(g, pos, node_size=vertex_size, cmap=plt.colormaps.get_cmap('winter'),
+                                       node_color=list(comms.values()))
+        nx.draw_networkx_edges(g, pos, alpha=0.3)
+        nx.draw(g, with_labels=True)
+        return g
 
     def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
@@ -263,4 +306,3 @@ class WeightedGraph(Graph):
             curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
 
         return curr_modularity / (2 * m)
-
