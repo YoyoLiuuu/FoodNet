@@ -22,7 +22,7 @@ score = graph.calculate_modularity_graph(communities, adjacent_matrix)
 
 print(score)
 
-# communities visualization 
+# communities visualization
 
 def set_to_dict(communities:list[set]) -> dict:
     dct = {}

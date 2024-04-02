@@ -206,9 +206,31 @@ class Graph:
         return curr_modularity / (2 * m)
 
 class _WeightedVertex(_Vertex):
-    """To be implemented by Allyssa"""
+    """A vertex in a social network graph.
+
+        Instance Attributes:
+            - item: The data stored in this vertex, representing a user id
+            - neighbours: The vertices that are adjacent to this vertex (mutual connections) mapped to their edgeweight.
+
+        Representation Invariants:
+            - self not in self.neighbours
+            - all(self in u.neighbours for u in self.neighbours)
+
+        """
     item: Any
-    neighbours: dict[_WeightedVertex, int]
+    neighbours: dict[_Vertex, Union[int, float]]
+
+    def __init__(self, item: Any) -> None:
+        """Initialize a new vertex with the given item and kind.
+
+        This vertex is initialized with no neighbours.
+        """
+        self.item = item
+        self.neighbours = {}
+
+    def degree(self) -> int:
+        """Return the degree of this vertex."""
+        return len(self.neighbours)
 
 
 class WeightedGraph(Graph):
