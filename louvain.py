@@ -6,7 +6,12 @@ def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, i
     This function detects and forms communities using a modified version of the Louvain Algorithm
     """
     # initialize each vertex as its own community
-    communities = {vertex: i for vertex in graph._vertices for i in range(len(graph._vertices))}
+    communities = {}
+    i = 0
+    for v in graph._vertices.values():
+        communities[v] = i
+        i += 1
+
     curr_modularity = graph.calculate_modularity_graph(communities, adjacency_matrix)
 
     for vertex in graph._vertices.values():
@@ -16,6 +21,18 @@ def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, i
                                                                            curr_modularity, adjacency_matrix)
         # get modularity of new communities
 
+    # reassign community numbers - can ignore for larger values of vertices -> runtime
+
+    community_curr_values = set(communities.values())
+    old_to_new = {}
+    i = 0
+    for value in community_curr_values:
+        old_to_new[value] = i
+        i += 1
+
+    for key in communities:
+        communities[key] = old_to_new[communities[key]]
+
     return communities, curr_modularity
 
 
@@ -24,7 +41,7 @@ def find_best_communities_for_vertex(graph: Graph,v: _Vertex, communities: dict[
     """
     xxx
     """
-    best_community, best_modularity = communities[v], init_modularity
+    best_community, best_modularity = communities, init_modularity
     neighbours_community = {communities[u] for u in v.neighbours}
 
     # iterate through every neighbour of v

@@ -178,8 +178,6 @@ class Graph:
         k_v = len(v.neighbours)
         total_sum = 0
 
-        print(communities)
-
         for u in self._vertices.values():
             if communities[v] == communities[u]:
                 delta = 1

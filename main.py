@@ -12,18 +12,20 @@ graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edge
 # visualize_graph.visualize_graph(graph)
 
 adjacent_matrix = graph.make_adjacent_matrix()
-
-communities = {}
+"""communities = {}
 
 
 for vertex in graph._vertices.values():
-    communities[vertex] = randint(9, 10)
+    communities[vertex] = randint(0, 10)
 
 score = graph.calculate_modularity_graph(communities, adjacent_matrix)
 
 print(score)
+"""
 
 new_communities, modularity = louvain_algorithm_init(graph, adjacent_matrix)
 
+new_communities = {i.item: new_communities[i] for i in new_communities}
 print(new_communities, modularity)
 # communities visualization
+
