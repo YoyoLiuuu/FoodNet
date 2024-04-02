@@ -1,9 +1,9 @@
 from __future__ import annotations
-from typing import Any, Union
+from typing import Any, Union, Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 import csv
-from visualization_help import set_to_dict
+from helper_functions import set_to_dict
 
 class _Vertex:
     """A vertex in an artist network graph, used to represent an artist.
@@ -385,36 +385,36 @@ class WeightedGraph(Graph):
 
         return dict_lst
 
-    def get_graph(vertices: str, edges: str, max: Optional[int] = 600000) -> (WeightedGraph, dict[str, str]):
-        """
-        Create graph from the files
-        """
-        g = WeightedGraph()
-        all_data_vertices = {}
-        count = 0
-        # with open('fb-pages-artist-nodes.txt', mode='r', encoding='cp437') as file:
-        with open(vertices, mode='r', encoding='cp437') as file:
-            reader = csv.reader(file)
-            file.readline()
-            for row in reader:
-                all_data_vertices[int(row[2])] = row[1]
-                g.add_vertex(int(row[2]))
+def get_graph(vertices: str, edges: str, max: Optional[int] = 600000) -> (WeightedGraph, dict[str, str]):
+    """
+    Create graph from the files
+    """
+    g = WeightedGraph()
+    all_data_vertices = {}
+    count = 0
+    # with open('fb-pages-artist-nodes.txt', mode='r', encoding='cp437') as file:
+    with open(vertices, mode='r', encoding='cp437') as file:
+        reader = csv.reader(file)
+        file.readline()
+        for row in reader:
+            all_data_vertices[int(row[2])] = row[1]
+            g.add_vertex(int(row[2]))
 
-                count += 1
+            count += 1
 
-                if count == max:
-                    break
+            if count == max:
+                break
 
-        # with open('fb-pages-artist-edges.txt', mode='r', encoding='cp437') as file:
-        with open(edges, mode='r', encoding='cp437') as file:
-            reader = csv.reader(file)
-            valid_vertices = all_data_vertices.keys()
+    # with open('fb-pages-artist-edges.txt', mode='r', encoding='cp437') as file:
+    with open(edges, mode='r', encoding='cp437') as file:
+        reader = csv.reader(file)
+        valid_vertices = all_data_vertices.keys()
 
-            for row in reader:
-                v1 = int(row[0])
-                v2 = int(row[1])
-                if v1 in valid_vertices and v2 in valid_vertices:
-                    g.add_edge(v1, v2)
+        for row in reader:
+            v1 = int(row[0])
+            v2 = int(row[1])
+            if v1 in valid_vertices and v2 in valid_vertices:
+                g.add_edge(v1, v2)
 
         return g, all_data_vertices, valid_vertices
 
@@ -645,3 +645,33 @@ class WeightedGraph(Graph):
             curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
 
         return curr_modularity / (2 * m)
+
+    def make_community_dicts(self, communities: dict[int, int]) -> list[dict[int, _Vertex]]:
+        """
+        Return a list of all the communites with its memebers in separate dictionaries with the item
+        as the key and the _vertex object as the value
+        >>> communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 2}
+        >>> g = WeightedGraph()
+            >>> for i in range(1, 6):
+            ...     g.add_vertex(i)
+        >>> lst = g.make_community_dicts(communities)
+        >>> lst == [{1: g._vertices[1], 2: g._vertices[2], 3: g._vertices[3]}, {4: g._vertices[4]}, {5: g._vertices[5]}]
+        True
+        """
+        community_ids = list(set(communities.values()))
+        curr_id = community_ids[0]
+        dict_lst = []
+        community_dict = {}
+
+        for v in communities:
+            if communities[v] != curr_id:
+                curr_id = communities[v]
+                dict_lst.append(community_dict)
+                community_dict = {}
+
+            if communities[v] == curr_id:
+                community_dict[v] = self._vertices[v]
+
+        dict_lst.append(community_dict)
+
+        return dict_lst
