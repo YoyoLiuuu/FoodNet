@@ -1,42 +1,55 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Union
 import matplotlib.pyplot as plt
 import networkx as nx
 import community
+import csv
 
 class _Vertex:
-    """A vertex in a book review graph, used to represent a user or a book.
+    """A vertex in an artist network graph, used to represent an artist.
 
-    Each vertex item is either a user id or book title. Both are represented as strings,
-    even though we've kept the type annotation as Any to be consistent with lecture.
+    Each vertex item is the id of the artist
 
     Instance Attributes:
-        - item: The data stored in this vertex, representing a user or book.
-        - kind: The type of this vertex: 'user' or 'book'.
+        - item: The data stored in this vertex, representing an artist.
         - neighbours: The vertices that are adjacent to this vertex.
 
     Representation Invariants:
         - self not in self.neighbours
         - all(self in u.neighbours for u in self.neighbours)
-        - self.kind in {'user', 'book'}
     """
-    item: Any
+    item: int
     neighbours: set[_Vertex]
 
     def __init__(self, item: Any) -> None:
-        """Initialize a new vertex with the given item and kind.
+        """Initialize a new vertex with the given item.
 
         This vertex is initialized with no neighbours.
-
-        Preconditions:
-            - kind in {'user', 'book'}
         """
         self.item = item
         self.neighbours = set()
 
+    def check_connected(self, target_item: Any, visited: set[_Vertex]) -> bool:
+        """Return whether this vertex is connected to a vertex corresponding to the target_item,
+        WITHOUT using any of the vertices in visited.
+        Preconditions:
+            - self not in visited
+        """
+        if self.item == target_item:
+            # Base case: the target_item is the current vertex
+            return True
+        else:
+            visited.add(self)  # Add self to the set of visited vertices
+            for u in self.neighbours:
+                if u not in visited:  # Only recurse on vertices that haven't been visited
+                    if u.check_connected(target_item, visited):
+                        return True
+
+            return False
+
 
 class Graph:
-    """A graph used to represent a book review network.
+    """A graph used to represent an artist connection network.
     """
     # Private Instance Attributes:
     #     - _vertices:
@@ -49,13 +62,10 @@ class Graph:
         self._vertices = {}
 
     def add_vertex(self, item: Any) -> None:
-        """Add a vertex with the given item and kind to this graph.
+        """Add a vertex with the given item to the graph.
 
         The new vertex is not adjacent to any other vertices.
         Do nothing if the given item is already in this graph.
-
-        Preconditions:
-            - kind in {'user', 'book'}
         """
         if item not in self._vertices:
             self._vertices[item] = _Vertex(item)
@@ -77,27 +87,19 @@ class Graph:
         else:
             raise ValueError
 
-    def to_networkx(self, max_vertices: int = 5000) -> nx.Graph:
+    def to_networkx(self) -> nx.Graph:
         """Convert this graph into a networkx Graph.
-
-        max_vertices specifies the maximum number of vertices that can appear in the graph.
-        (This is necessary to limit the visualization output for large graphs.)
-
-        Note that this method is provided for you, and you shouldn't change it.
+           Credit: this function is adapted from exercise 4 of CSC111, with some changes.
         """
         graph_nx = nx.Graph()
         for v in self._vertices.values():
             graph_nx.add_node(v.item)
 
             for u in v.neighbours:
-                if graph_nx.number_of_nodes() < max_vertices:
-                    graph_nx.add_node(u.item)
+                graph_nx.add_node(u.item)
 
                 if u.item in graph_nx.nodes:
                     graph_nx.add_edge(v.item, u.item)
-
-            if graph_nx.number_of_nodes() >= max_vertices:
-                break
 
         return graph_nx
 
@@ -143,26 +145,164 @@ class Graph:
         nx.draw(g, with_labels=True)
         return g
 
-def set_to_dict(communities:list[set]) -> dict:
-    dct = {}
-    for i in range(0, len(communities)):
-        for node in communities[i]:
-            dct[node] = i
-    return dct
+    def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
+        """
+        Make the adjacent matrix used for Louvain calculation.
 
-def test():
+        matrix = {}
+        # make a dictionary for each vertex v such that the dictionary is in the format:
+        # keys = u.item for all vertices in graph
+        # values = the distance between u and v, -1 if they are not connected (if u = v, the value is 0)
+        for v in self._vertices:
+            matrix[v] = {}
+            for u in self._vertices:
+                if self._vertices[v].check_connected(u, set()):
+                    matrix[v][u] = nx.shortest_path_length(self.to_networkx(), v, u)
+                else:
+                    matrix[v][u] = -1
+
+        return matrix
+        """
+        matrix = {}
+        for v in self._vertices.values():
+            matrix[v.item] = {}
+            for u in self._vertices.values():
+                if u in v.neighbours:
+                    matrix[v.item][u.item] = 1
+                else:
+                    matrix[v.item][u.item] = 0
+
+        return matrix
+
+    def get_num_edges(self) -> int:
+
+        total_degree = 0
+
+        for vertex in self._vertices.values():
+            total_degree += len(vertex.neighbours)
+
+        # since undirected graph
+        return int(total_degree / 2)
+
+    def calculate_modularity_each(self, v: _Vertex, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
+        """
+        Return the modularity of the current partitioning of communities in graph
+        """
+        k_v = len(v.neighbours)
+        total_sum = 0
+
+        for u in self._vertices.values():
+            if communities[v] == communities[u]:
+                delta = 1
+            else:
+                delta = 0
+            k_u = len(u.neighbours)
+
+            adjacent_score = adjacency_matrix[v.item][u.item]
+
+            if adjacent_score != -1 and u != v:
+                adjacent = (adjacent_score - (k_u * k_v) / (2 * m)) * delta
+                total_sum += adjacent
+        return total_sum
+
+    def calculate_modularity_graph(self, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]]) -> float:
+        """
+        Return the modularity score of the graph based on current communities.
+        """
+        m = self.get_num_edges()
+        curr_modularity = 0
+
+        for v in self._vertices.values():
+            curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+
+        return curr_modularity / (2 * m)
+
+class _WeightedVertex(_Vertex):
+    """To be implemented by Allyssa"""
+    item: Any
+    neighbours: dict[_WeightedVertex, int]
+
+
+class WeightedGraph(Graph):
+    """A graph used to represent a network of communities.
     """
-    Test function
-    """
-    G = nx.karate_club_graph()  # load a default graph
+    # Private Instance Attributes:
+    #     - _vertices:
+    #         A collection of the vertices contained in this graph.
+    #         Mapping from id to _Community
+    _vertices: dict[int, _WeightedVertex]
 
-    partition = community.best_partition(G)  # compute communities
+    def __init__(self) -> None:
+        """Initialize an empty graph (no vertices or edges)."""
+        self._vertices = {}
 
-    pos = nx.spring_layout(G)  # compute graph layout
-    plt.figure(figsize=(8, 8))  # image is 8 x 8 inches
-    plt.axis('off')
-    nx.draw_networkx_nodes(G, pos, node_size=600, cmap=plt.colormaps.get_cmap('RdYlBu'), node_color=list(partition.values()))
-    nx.draw_networkx_edges(G, pos, alpha=0.3)
-    nx.draw(G, with_labels=True)
-    # plt.show(G)
-    return G
+    def make_weighted_adjacent_matrix(self) -> dict[int, dict[int, int]]:
+        """
+        Make the adjacent "matrix" used for Louvain calculation. Stored as dictionary for easier access.
+        matrix[v.item][u.item] represent edge weight between the two vertices.
+        """
+        matrix = {}
+        for v in self._vertices.values():
+            matrix[v.item] = {}
+            for u in self._vertices.values():
+                if u in v.neighbours:
+                    matrix[v.item][u.item] = v.neighbours[u]
+                else:
+                    matrix[v.item][u.item] = 0
+
+        return matrix
+
+    def get_all_edge_weights(self) -> int:
+        """
+        Return the sum of all edge weights in the graph.
+        Preconditions:
+            - len(self._vertices) > 1
+            - at least 1 edge exist in the graph
+        """
+        all_edge_weights = 0
+
+        for v in self._vertices.values():
+            all_edge_weights += sum([v.neighbours.values()])
+
+        return int(all_edge_weights / 2)
+
+    def calculate_weighted_modularity_each(self, v: _WeightedVertex, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
+        """
+        Return the modularity of the current partitioning of communities in graph
+        """
+        k_v = sum(v.neighbours.values())
+        total_sum = 0
+
+        for u in self._vertices.values():
+            if communities[v] == communities[u]:
+                delta = 1
+            else:
+                delta = 0
+            k_u = sum(u.neighbours.values())
+
+            adjacent_score = adjacency_matrix[v.item][u.item]
+
+            if adjacent_score != -1 and u != v:
+                adjacent = (adjacent_score - (k_u * k_v) / (2 * m)) * delta
+                total_sum += adjacent
+        return total_sum
+
+    def calculate_weighted_modularity_graph(self, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]]) -> float:
+        """
+        Return the modularity score of the graph based on current communities.
+
+        Preconditions:
+            - len(self._vertices) > 1
+            - self.get_num_edges() > 0
+        """
+        m = self.get_all_edge_weights()
+        curr_modularity = 0
+
+        for v in self._vertices.values():
+            curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+
+        return curr_modularity / (2 * m)

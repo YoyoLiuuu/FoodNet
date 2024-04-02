@@ -18,7 +18,6 @@ USER_COLOUR = 'rgb(105, 89, 205)'
 
 def visualize_graph(graph: classes.Graph,
                     layout: str = 'spring_layout',
-                    max_vertices: int = 10000000000000,
                     output_file: str = '') -> None:
     """Use plotly and networkx to visualize the given graph.
 
@@ -28,7 +27,7 @@ def visualize_graph(graph: classes.Graph,
         - output_file: a filename to save the plotly image to (rather than displaying
             in your web browser)
     """
-    graph_nx = graph.to_networkx(max_vertices)
+    graph_nx = graph.to_networkx()
 
     pos = getattr(nx, layout)(graph_nx)
 
