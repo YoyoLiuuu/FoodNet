@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Union
 import networkx as nx
 import csv
 
@@ -176,6 +176,11 @@ class Graph:
 
         return curr_modularity / (2 * m)
 
+class _WeightedVertex(_Vertex):
+    """To be implemented by Allyssa"""
+    item: Any
+    neighbours: dict[_WeightedVertex, int]
+
 
 class WeightedGraph(Graph):
     """A graph used to represent a network of communities.
@@ -184,30 +189,78 @@ class WeightedGraph(Graph):
     #     - _vertices:
     #         A collection of the vertices contained in this graph.
     #         Mapping from id to _Community
-    _vertices: dict[int, _Community]
+    _vertices: dict[int, _WeightedVertex]
 
     def __init__(self) -> None:
         """Initialize an empty graph (no vertices or edges)."""
         self._vertices = {}
 
-
-class _Community(_Vertex):
-    """
-    A community of artists of graph g. Include 0 to len(g._vertices) of vertices.
-
-    Instance Attributes:
-        - id: the identifier of the community
-        - item: The number of edges within a community.
-        - neighbours: A mapping from the neighbouring community to the number of edges between the two communities
-    """
-    id: int
-    item: int
-    neighbours: dict[_Community, int]
-
-    def __init__(self, id: int, item: int) -> None:
-        """Initialize a new community with the given item.
-        This vertex is initialized with no neighbours.
+    def make_weighted_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
-        super().__init__(item)
-        self.id = id
-        self.neighbours = {}
+        Make the adjacent "matrix" used for Louvain calculation. Stored as dictionary for easier access.
+        matrix[v.item][u.item] represent edge weight between the two vertices.
+        """
+        matrix = {}
+        for v in self._vertices.values():
+            matrix[v.item] = {}
+            for u in self._vertices.values():
+                if u in v.neighbours:
+                    matrix[v.item][u.item] = v.neighbours[u]
+                else:
+                    matrix[v.item][u.item] = 0
+
+        return matrix
+
+    def get_all_edge_weights(self) -> int:
+        """
+        Return the sum of all edge weights in the graph.
+        Preconditions:
+            - len(self._vertices) > 1
+            - at least 1 edge exist in the graph
+        """
+        all_edge_weights = 0
+
+        for v in self._vertices.values():
+            all_edge_weights += sum([v.neighbours.values()])
+
+        return int(all_edge_weights / 2)
+
+    def calculate_weighted_modularity_each(self, v: _WeightedVertex, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
+        """
+        Return the modularity of the current partitioning of communities in graph
+        """
+        k_v = sum(v.neighbours.values())
+        total_sum = 0
+
+        for u in self._vertices.values():
+            if communities[v] == communities[u]:
+                delta = 1
+            else:
+                delta = 0
+            k_u = sum(u.neighbours.values())
+
+            adjacent_score = adjacency_matrix[v.item][u.item]
+
+            if adjacent_score != -1 and u != v:
+                adjacent = (adjacent_score - (k_u * k_v) / (2 * m)) * delta
+                total_sum += adjacent
+        return total_sum
+
+    def calculate_weighted_modularity_graph(self, communities: dict[_Vertex, int],
+                                  adjacency_matrix: dict[int, dict[int, int]]) -> float:
+        """
+        Return the modularity score of the graph based on current communities.
+
+        Preconditions:
+            - len(self._vertices) > 1
+            - self.get_num_edges() > 0
+        """
+        m = self.get_all_edge_weights()
+        curr_modularity = 0
+
+        for v in self._vertices.values():
+            curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+
+        return curr_modularity / (2 * m)
+
