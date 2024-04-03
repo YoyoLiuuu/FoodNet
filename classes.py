@@ -587,7 +587,7 @@ class WeightedGraph(Graph):
         m = self.get_all_edge_weights()
         curr_modularity = 0
 
-        if m > 0 :
+        if m > 0:
             for v in self._vertices.values():
                 curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
 

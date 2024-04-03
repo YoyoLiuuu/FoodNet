@@ -1,5 +1,5 @@
 from __future__ import annotations
-from classes import WeightedGraph, _Vertex
+from classes import WeightedGraph, _Vertex, _Community
 
 def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> WeightedGraph:
     """
@@ -74,3 +74,14 @@ def get_edge_weights(communties: dict[int, int], outer_edges: list[set]) -> list
 
     return [(list(key), edges_dict[key]) for key in edges_dict]
 
+
+def get_all_members(community: _Vertex) -> dict[int, _Vertex]:
+    if not isinstance(community, _Community):
+        return {community.item: community}
+
+    new_members = {}
+
+    for member in community.members:
+        new_members = new_members | get_all_members(community.members[member])
+
+    return new_members

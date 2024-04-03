@@ -3,6 +3,7 @@ import pre_processing
 import visualize_graph
 import sys
 from louvain import louvain_algorithm, graph_to_weighted_graph, get_weighted_graph
+from helper_functions import get_all_members
 
 sys.setrecursionlimit(60000)  # change recursion limit so recursion error doesn't occur
 
@@ -31,21 +32,25 @@ while all({abs(modularity_gain) > 0.01 for modularity_gain in modularity_increas
     adjacent_matrix = louvain_graph.make_adjacent_matrix()
     curr_modularity = modularity
     prev_communities = new_communities
-    new_communities, modularity = louvain_algorithm(louvain_graph, adjacent_matrix)
-    new_communities = {i.item: new_communities[i] for i in new_communities}
+    the_communities, modularity = louvain_algorithm(louvain_graph, adjacent_matrix)
+    new_communities = {i.item: the_communities[i] for i in the_communities}
     modularity_increases.append(modularity - curr_modularity)
     if modularity_increases[-1] < 0:
         new_communities = prev_communities
         louvain_graph = prev_louvain_graph
 
-print(the_communities)
-
 vertex_to_community = {}
-for vertex in the_communities:
-    vertex_to_community[all_data_vertices[vertex]] = the_communities[vertex]
 
+for community in the_communities:
+    members = get_all_members(community)
+    for vertex_value in members:
+        vertex_to_community[all_data_vertices[vertex_value]] = the_communities[community]
+
+# visualize communities -> but no edges shown between communities
 for vertex in graph._vertices:
     graph._vertices[vertex].item = all_data_vertices[vertex]
 
-print(vertex_to_community)
+print(graph._vertices)
+
+print(members, len(the_communities))
 print(all_data_vertices)
