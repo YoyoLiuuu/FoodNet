@@ -1,5 +1,6 @@
-from classes import Graph, WeightedGraph, _Vertex, _WeightedVertex
+from classes import Graph, WeightedGraph, _Vertex, _WeightedVertex, _Community
 from helper_functions import get_weighted_graph, get_edge_weights
+from typing import Optional
 
 
 def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
@@ -18,8 +19,8 @@ def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, i
     for vertex in graph._vertices.values():
 
         # merge communities based on modularity calculations
-        communities, curr_modularity = find_best_communities_for_vertex(graph, vertex, communities,
-                                                                           curr_modularity, adjacency_matrix)
+        communities, curr_modularity = find_best_community(graph, vertex, communities, curr_modularity,
+                                                           adjacency_matrix)
         # get modularity of new communities
 
     # reassign community numbers - can ignore for larger values of vertices -> runtime
@@ -34,11 +35,13 @@ def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, i
     for key in communities:
         communities[key] = old_to_new[communities[key]]
 
-    return communities, curr_modularity
+    sorted_communities = dict(sorted(communities.items(), key=lambda x: x[1]))
+
+    return sorted_communities, curr_modularity
 
 
-def find_best_communities_for_vertex(graph: Graph,v: _Vertex, communities: dict[_Vertex, int], init_modularity: float,
-                                     adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
+def find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int], init_modularity: float,
+                        adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
     docstring
     """
@@ -56,7 +59,6 @@ def find_best_communities_for_vertex(graph: Graph,v: _Vertex, communities: dict[
                 best_community, best_modularity = new_communities, new_modularity
 
     return best_community, best_modularity
-
 
 def graph_to_weighted_graph(graph: Graph) -> WeightedGraph:
     """
@@ -108,6 +110,7 @@ def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> Weighte
         new_g.add_edge(comm_ids[0], comm_ids[1], weight)
 
     return new_g
+
 
 def get_comm_id(all_communities: dict[int, int], community: [int, _Vertex]):
     """
