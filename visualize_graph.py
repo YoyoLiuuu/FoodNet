@@ -23,7 +23,6 @@ def visualize_graph(graph: classes.Graph,
 
     Optional arguments:
         - layout: which graph layout algorithm to use
-        - max_vertices: the maximum number of vertices that can appear in the graph
         - output_file: a filename to save the plotly image to (rather than displaying
             in your web browser)
     """
@@ -75,7 +74,6 @@ def visualize_graph(graph: classes.Graph,
 
 def visualize_graph_clusters(graph: classes.Graph, clusters: list[set],
                              layout: str = 'spring_layout',
-                             max_vertices: int = 5000,
                              output_file: str = '') -> None:
     """Visualize the given graph, using different colours to illustrate the different clusters.
 
@@ -84,7 +82,7 @@ def visualize_graph_clusters(graph: classes.Graph, clusters: list[set],
 
     Same optional arguments as visualize_graph (see that function for details).
     """
-    graph_nx = graph.to_networkx(max_vertices)
+    graph_nx = graph.to_networkx()
     all_edges = list(graph_nx.edges)
     for edge in all_edges:
         # Check if edge is within the same cluster
