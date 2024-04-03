@@ -375,7 +375,7 @@ class _Community(_WeightedVertex):
 
     item: Any
     neighbours: dict[_Community, Union[int, float]]
-    weight: int
+    inner_weight: int
     members: dict[int, _WeightedVertex]
 
     def __init__(self, item: Any, weight: int, members: dict[int, _WeightedVertex]):
@@ -383,7 +383,7 @@ class _Community(_WeightedVertex):
         A new community formed after all communities formed in previous graph
         """
         super().__init__(item)
-        self.inner_weight = weight
+        self.inner_weight = 2 * weight
         self.members = members
 
 

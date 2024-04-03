@@ -1,7 +1,5 @@
 from __future__ import annotations
-from typing import Optional
-import csv
-from classes import WeightedGraph
+from classes import WeightedGraph, _Vertex
 
 def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> WeightedGraph:
     """
@@ -75,3 +73,4 @@ def get_edge_weights(communties: dict[int, int], outer_edges: list[set]) -> list
             edges_dict[edge_name] = 1
 
     return [(list(key), edges_dict[key]) for key in edges_dict]
+

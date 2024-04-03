@@ -3,7 +3,7 @@ from helper_functions import get_weighted_graph, get_edge_weights
 from typing import Optional
 
 
-def louvain_algorithm_init(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
+def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
     This function detects and forms communities using a modified version of the Louvain Algorithm
     """
