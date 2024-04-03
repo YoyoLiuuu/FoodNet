@@ -7,9 +7,15 @@ from louvain import louvain_algorithm_init, graph_to_weighted_graph, get_weighte
 
 sys.setrecursionlimit(60000)  # change recursion limit so recursion error doesn't occur
 
+<<<<<<< Updated upstream
 # graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
 
 graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
+=======
+graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
+
+# graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
+>>>>>>> Stashed changes
 # all_data_vertices: a dictionary mapping id (item for Vertex) to name of artist
 # visualize_graph.visualize_graph(graph)
 
@@ -26,13 +32,22 @@ louvain_graph = graph
 
 modularity_increase = 1
 
+<<<<<<< Updated upstream
 while modularity_increase > 0.01:
+=======
+while abs(modularity_increase) > 0.001:
+    prev_louvain_graph = louvain_graph
+>>>>>>> Stashed changes
     louvain_graph = get_weighted_graph(louvain_graph, new_communities)
     adjacent_matrix = louvain_graph.make_adjacent_matrix()
     curr_modularity = modularity
+    prev_communities = new_communities
     the_communities, modularity = louvain_algorithm_init(louvain_graph, adjacent_matrix)
     new_communities = {i.item: the_communities[i] for i in the_communities}
     modularity_increase = modularity - curr_modularity
+    if modularity_increase < 0:
+        new_communities = prev_communities
+        louvain_graph = prev_louvain_graph
 
 
 communities_to_members = {i.item: i.members for i in the_communities}
