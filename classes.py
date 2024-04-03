@@ -54,6 +54,7 @@ class Graph:
     #     - _vertices:
     #         A collection of the vertices contained in this graph.
     #         Maps item to _Vertex object.
+
     _vertices: dict[Any, _Vertex]
 
     def __init__(self) -> None:

@@ -6,8 +6,8 @@ from louvain import louvain_algorithm_init, graph_to_weighted_graph, get_weighte
 
 sys.setrecursionlimit(60000)  # change recursion limit so recursion error doesn't occur
 
-# graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
-graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
+graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
+# graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
 # all_data_vertices: a dictionary mapping id (item for Vertex) to name of artist
 # visualize_graph.visualize_graph(graph)
 
@@ -37,16 +37,8 @@ while abs(modularity_increase) > 0.001:
         new_communities = prev_communities
         louvain_graph = prev_louvain_graph
 
-communities_to_members = []
-
-for i in the_communities:
-    communities_to_members.append({all_data_vertices[num] for num in i.members})
-
-print(communities_to_members)
+the_communities = {all_data_vertices[key.item]: the_communities[key] for key in the_communities}
 
 # visualize communities -> but no edges shown between communities
 for vertex in graph._vertices:
     graph._vertices[vertex].item = all_data_vertices[vertex]
-
-visualize_graph.visualize_graph_clusters(graph, communities_to_members)
-
