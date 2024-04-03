@@ -37,7 +37,11 @@ while abs(modularity_increase) > 0.001:
         new_communities = prev_communities
         louvain_graph = prev_louvain_graph
 
-the_communities = {all_data_vertices[key.item]: the_communities[key] for key in the_communities}
+vertex_to_community = {}
+
+for community in the_communities:
+    for vertex_value in community.members:
+        vertex_to_community[all_data_vertices[vertex_value]] = the_communities[community]
 
 # visualize communities -> but no edges shown between communities
 for vertex in graph._vertices:
