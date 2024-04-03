@@ -1,3 +1,4 @@
+
 def set_to_dict(communities: list[set]) -> dict:
     dct = {}
     for i in range(0, len(communities)):

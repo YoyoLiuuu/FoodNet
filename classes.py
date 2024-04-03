@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Any, Union
 import matplotlib.pyplot as plt
 import networkx as nx
-import csv
 from visualization_helper import set_to_dict
 
 class _Vertex:
