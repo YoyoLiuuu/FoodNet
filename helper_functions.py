@@ -3,28 +3,6 @@ from typing import Optional
 import csv
 from classes import WeightedGraph
 
-
-
-
-"""def test():
-    """
-# Test
-# function
-"""
-G = nx.karate_club_graph()  # load a default graph
-
-partition = community.best_partition(G)  # compute communities
-
-pos = nx.spring_layout(G)  # compute graph layout
-plt.figure(figsize=(8, 8))  # image is 8 x 8 inches
-plt.axis('off')
-nx.draw_networkx_nodes(G, pos, node_size=600, cmap=plt.colormaps.get_cmap('RdYlBu'), node_color=list(partition.values()))
-nx.draw_networkx_edges(G, pos, alpha=0.3)
-nx.draw(G, with_labels=True)
-# plt.show(G)
-return G
-"""
-
 def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> WeightedGraph:
     """
     Return the weighted graph given the dictionary of communites, where each community is one node
