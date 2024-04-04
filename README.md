@@ -32,25 +32,34 @@ Aric A. Hagberg, Daniel A. Schult and Pieter J. Swart, “Exploring network stru
 dynamics, and function using NetworkX”, in Proceedings of the 7th Python in
 Science Conference (SciPy2008), G ̈ael Varoquaux, Travis Vaught, and Jarrod
 Millman (Eds), (Pasadena, CA USA), pp. 11–15, Aug 2008
+
 Bush, Olivia. “Social Media Statistics in Canada.” Made in CA, 5 Jan. 2024,
 madeinca.ca/social-media-statistics-canada
+
 Jayawickrama, Thamindu Dilshan. “Community Detection Algorithms.” Medium,
 Towards Data Science, 29 Jan. 2021, towardsdatascience.com/community-detection-
 algorithms-9bd8951e7dae.
+
 NetSci 06-2 Modularity and the Louvain Method. (2021, September 21). Www.youtube.com.
 https://www.youtube.com/watch?v=QfTxqAxJp0U
+
 Rossi, Ryan A., and Nesreen K. Ahmed. “The Network Data Repository with
 Interactive Graph Analytics and Visualization.” Network Data Repository, 2015,
 networkrepository.com/fb-pages-artist.php.
+
 “Software for Complex Networks.” Software for Complex Networks - NetworkX 3.2.1
 Documentation, 28 Oct. 2023, networkx.org/documentation/stable/.
+
 Stanford CS224W: Machine Learning with Graphs — 2021 — Lecture 13.3 -
 Louvain Algorithm. (2021, May 25). Www.youtube.com.
 https://www.youtube.com/watch?v=0zuiLBOIcsw
+
 Blondel, Vincent D, Guillaum, Jean-Loup, Lambiotte, Renaud and Lefebvre1,
 Etienne Fast unfolding of communities in large networks. (2008, October 9).
 https://iopscience.iop.org/article/10.1088/1742-5468/2008/10/P10008/meta
+
 Weisstein, E. W. (n.d.). Adjacency Matrix. Mathworld.wolfram.com. Retrieved
 March 31, 2024, from https://mathworld.wolfram.com/AdjacencyMatrix.html
+
 West Health Institute Revision. “Documentation.” Documentation - Pyvis 0.1.3.1
 Documentation, 2018, pyvis.readthedocs.io/en/latest/documentation.html
