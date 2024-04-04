@@ -1,19 +1,26 @@
+"""
+This file contains classes and helper functions to carry out the algorithm and make the
+graph
+"""
 from __future__ import annotations
 from typing import Any, Union
 import matplotlib.pyplot as plt
+import matplotlib.colors
+import distinctipy
 import networkx as nx
-from visualization_helper import set_to_dict
 
 
 class _Vertex:
     """A vertex in a social network graph, used to represent a user.
 
    Each vertex item is a user id, represented as intergers,
-   though we've kept the type annotation as Any to be consistent with lecture and for testing purposes.
+   though we've kept the type annotation as Any to be consistent with lecture and for testing
+   purposes.
 
    Instance Attributes:
        - item: The data stored in this vertex, representing a user id
-       - neighbours: The vertices that are adjacent to this vertex (mutual connections) mapped to their edgeweight.
+       - neighbours: The vertices that are adjacent to this vertex (mutual connections) mapped
+       to their edgeweight.
 
    Representation Invariants:
        - self not in self.neighbours
@@ -121,7 +128,8 @@ class Graph:
             vertex = community[v]
             for u in vertex.neighbours:
                 # if {vertex, u} not in edge_visited and u.item in community:
-                if u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item in community:
+                if (u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item
+                        in community):
                     edges_sum += 1
 
                 edge_visited[u.item].add(v)
@@ -132,7 +140,8 @@ class Graph:
     def get_all_outer_edges(self, communities_lst: list[dict[int, _Vertex]]) -> list[set]:
         """
        Return a list of all outer edges in a graph given a list of communities.
-       Each element is a community represented as its own dictionary where the item maps to the _Vertex object.
+       Each element is a community represented as its own dictionary where the item maps to
+       the _Vertex object.
 
        Note: an outer edge is an edge between vertices that are in different communities
 
@@ -157,14 +166,15 @@ class Graph:
         all_outer_edges = []
 
         for c in communities_lst:
-            all_outer_edges.extend([edge for edge in self.get_outer_edges(c) if edge not in all_outer_edges])
+            all_outer_edges.extend([edge for edge in self.get_outer_edges(c) if edge not in
+                                    all_outer_edges])
 
         return all_outer_edges
 
     def get_outer_edges(self, community: dict[int, _Vertex]) -> list[set]:
         """
-        Returns a list of sets, where the sets are outer edges, meaning the edges between vertices/communities of
-        different communities.
+        Returns a list of sets, where the sets are outer edges, meaning the edges between
+        vertices/communities of different communities.
 
         Preconditions:
             - all(community[v] in self.vertices for v in community)
@@ -187,7 +197,8 @@ class Graph:
         for v in community:
             vertex = community[v]
             for u in vertex.neighbours:
-                if u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item not in community:
+                if (u.item not in edge_visited[v] and v not in edge_visited[u.item] and u.item
+                        not in community):
                     outer_edges.append({v, u.item})
 
                 edge_visited[u.item].add(v)
@@ -246,51 +257,26 @@ class Graph:
 
         return graph_nx
 
-    def make_community_graph(self, communities: list[set]) -> Graph:
+    def make_community_graph(self, communities: dict[str: int], length: int) -> None:
         """
-        This method shows the social network visually, highlighting the communities in the network
-        """
-        comms = set_to_dict(communities)
-        g = self.to_networkx()
-        pos = nx.spring_layout(g)
-        plt.figure(figsize=(10, 10))
-        plt.axis('off')
-        nx.draw_networkx_nodes(g, pos, node_size=600, cmap=plt.cm.get_cmap('RdYlBu'),
-                               node_color=list(comms.values()))
-        nx.draw_networkx_edges(g, pos, alpha=0.3)
-        nx.draw(g, with_labels=True)
-        return g
+        Outputs a graph of the network, colour-coding the communities and labelling vertices.
 
-    def one_community(self, communities: list[set], num: int) -> Graph:
         """
-        This method shows the social network with one community highlighted above others
-
-        Preconditions:
-        - 0 <= num < len(communities)
-        """
-        comms = set_to_dict(communities)
-        vertex_size = []
         g = self.to_networkx()
-        pos = nx.spring_layout(g)
+        pos = nx.circular_layout(g)
         plt.figure(figsize=(10, 10))
         plt.axis('off')
-        for node, community in comms.items():
-            if community == num:
-                vertex_size.append(900)
-            else:
-                comms[node] = 0
-                vertex_size.append(300)
-        plt.figure(figsize=(10, 10))
-        plt.axis('off')
-        nodes = nx.draw_networkx_nodes(g, pos, node_size=vertex_size, cmap=plt.colormaps.get_cmap('winter'),
-                                       node_color=list(comms.values()))
+        colours = matplotlib.colors.ListedColormap(distinctipy.get_colors(length))
+        nx.draw_networkx_nodes(g, pos, node_size=200, cmap=colours,
+                               node_color=list(communities.values()))
         nx.draw_networkx_edges(g, pos, alpha=0.3)
-        nx.draw(g, with_labels=True)
-        return g
+        nx.draw_networkx_labels(g, pos, font_size=6)
+        plt.show()
 
     def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
-        Make the adjacent matrix used for Louvain calculation, 1 if there's an edge between the vertices, 0 otherwise.
+        Make the adjacent matrix used for Louvain calculation, 1 if there's an
+        edge between the vertices, 0 otherwise.
         """
         matrix = {}
         for v in self.vertices.values():
@@ -349,7 +335,8 @@ class Graph:
 
         if m > 0:
             for v in self.vertices.values():
-                curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+                curr_modularity += self.calculate_modularity_each(v, communities,
+                                                                  adjacency_matrix, m)
 
             return curr_modularity / (2 * m)
         else:
@@ -357,7 +344,8 @@ class Graph:
 
     def create_edges_dict(self) -> dict[int, set]:
         """
-        Return a dictionary with all vertices/communities item attributes as keys and empty sets as values.
+        Return a dictionary with all vertices/communities item attributes as keys and empty sets
+        as values.
         """
         dictionary = {}
         for v in self.vertices:
@@ -371,7 +359,8 @@ class _WeightedVertex(_Vertex):
 
         Instance Attributes:
             - item: The data stored in this vertex, representing a user id
-            - neighbours: The vertices that are adjacent to this vertex (mutual connections) mapped to their edgeweight.
+            - neighbours: The vertices that are adjacent to this vertex (mutual connections)
+            mapped to their edgeweight.
 
         Representation Invariants:
             - self not in self.neighbours
@@ -403,7 +392,8 @@ class _Community(_WeightedVertex):
 
     Instance Attributes:
         - item: the unique integer id of the community
-        - neighbours: the vertices/communities that are adjacent to this community mappeded to their edge weight
+        - neighbours: the vertices/communities that are adjacent to this community mapped
+         to their edge weight
         - weight: the number of edges within the community
         - members: the dictionary of the vertices/nodes items within the community mapped to their
         _Vertex/_Community object
@@ -413,7 +403,7 @@ class _Community(_WeightedVertex):
     inner_weight: int
     members: dict[int, _WeightedVertex]
 
-    def __init__(self, item: Any, weight: int, members: dict[int, _WeightedVertex]):
+    def __init__(self, item: Any, weight: int, members: dict[int, _WeightedVertex]) -> None:
         """
         Initialize a new community formed after all community members identified in previous graph.
 
@@ -557,8 +547,8 @@ class WeightedGraph(Graph):
 
     def make_community_dicts(self, communities: dict[int, int]) -> list[dict[int, _Vertex]]:
         """
-        Return a list of all the communities with its memebers in separate dictionaries with the item
-        as the key and the _vertex object as the value
+        Return a list of all the communities with its memebers in separate dictionaries with the
+        item as the key and the _vertex object as the value
         >>> communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 2}
         >>> g = WeightedGraph()
             >>> for i in range(1, 6):
@@ -587,7 +577,8 @@ class WeightedGraph(Graph):
 
     def make_adjacent_matrix(self) -> dict[int, dict[int, int]]:
         """
-        Make the adjacent "matrix" used for Louvain calculation. Stored as dictionary for easier access.
+        Make the adjacent "matrix" used for Louvain calculation. Stored as dictionary for easier
+        access.
         matrix[v.item][u.item] represent edge weight between the two vertices.
         """
         matrix = {}
@@ -653,7 +644,8 @@ class WeightedGraph(Graph):
 
         if m > 0:
             for v in self.vertices.values():
-                curr_modularity += self.calculate_modularity_each(v, communities, adjacency_matrix, m)
+                curr_modularity += self.calculate_modularity_each(v, communities,
+                                                                  adjacency_matrix, m)
 
             return curr_modularity / (2 * m)
         else:
@@ -661,175 +653,16 @@ class WeightedGraph(Graph):
             return 0
 
 
-# none class functions
-def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> WeightedGraph:
-    """
-    Return the weighted graph given the dictionary of communites, where each community is one vertex
+if __name__ == '__main__':
+    import doctest
 
-    The community id will be a tuple with the sum of edge weights in the community and an identifying integer
+    doctest.testmod()
+    import python_ta
 
-    >>> ex_communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}
-    >>> g = WeightedGraph()
-    >>> for i in range(1, 6):
-    ...     g.add_vertex(i)
-    >>> g.add_edge(1, 2)
-    >>> g.add_edge(2, 3)
-    >>> g.add_edge(1, 3)
-    >>> g.add_edge(3, 4)
-    >>> g.add_edge(2, 5)
-    >>> a_new_g = get_weighted_graph(g, ex_communities)
-    >>> a_new_g.get_weight(0, 1)
-    2
-    """
-    communities_lst = g.make_community_dicts(communities)
-    new_g = WeightedGraph()
-    outer_edges = get_all_outer_edges(communities_lst)
-
-    for c in communities_lst:
-        inner_edge_weight = get_inner_edge_weights(c)
-        new_g.add_community(get_comm_id(communities, c), inner_edge_weight, c)
-
-    new_outer_edges = get_edge_weights(communities, outer_edges)
-
-    for edges in new_outer_edges:
-        weight = edges[1]
-        comm_ids = edges[0]
-
-        new_g.add_edge(comm_ids[0], comm_ids[1], weight)
-
-    return new_g
-
-
-def get_comm_id(all_communities: dict[int, int], community: [int, _Vertex]):
-    """
-    Return the id of a community
-    """
-    for c in community:
-        return all_communities[c]
-
-
-def get_all_outer_edges(communities_lst: list[dict[int, _Vertex]]) -> list[set]:
-    """
-    Return a list of all outer edges in a graph given a list of communities
-    >>> g = WeightedGraph()
-    >>> for i in range(1, 6):
-    ...     g.add_vertex(i)
-    >>> g.add_edge(1, 2)
-    >>> g.add_edge(2, 3)
-    >>> g.add_edge(1, 3)
-    >>> g.add_edge(3, 4)
-    >>> g.add_edge(4, 5)
-    >>> g.add_edge(5, 2)
-    >>> community1 = {1: g.vertices[1], 2: g.vertices[2], 3: g.vertices[3]}
-    >>> community2 = {4: g.vertices[4], 5: g.vertices[5]}
-    >>> lst = get_all_outer_edges([community1, community2])
-    >>> lst == [{3, 4}, {5, 2}] or lst == [{2, 5}, {3, 4}]
-    True
-    """
-    all_outer_edges = []
-
-    for c in communities_lst:
-        all_outer_edges.extend([edge for edge in get_outer_edges(c) if edge not in all_outer_edges])
-
-    return all_outer_edges
-
-
-def get_outer_edges(community: dict[int, _Vertex]) -> list[set]:
-    """
-    Returns a list of sets, where the sets are outer edges
-
-    >>> g = WeightedGraph()
-    >>> for i in range(1, 5):
-    ...     g.add_vertex(i)
-    >>> g.add_edge(1, 2)
-    >>> g.add_edge(2, 3)
-    >>> g.add_edge(1, 3)
-    >>> g.add_edge(3, 4)
-    >>> community = {1: g.vertices[1], 2: g.vertices[2], 3: g.vertices[3]}
-    >>> get_outer_edges(community)
-    [{3, 4}]
-    """
-    outer_edges = []
-    edge_visited = []  # improve runtime?
-    for v in community:
-        vertex = community[v]
-        for u in vertex.neighbours:
-            if {vertex, u} not in edge_visited and u.item not in community:
-                outer_edges.append({v, u.item})
-
-            edge_visited.append({vertex, u})
-
-    return outer_edges
-
-
-def get_inner_edge_weights(community: dict[int, _Vertex]) -> int:
-    """
-    Return sum of edge weights in a given community set
-
-    >>> g = WeightedGraph()
-    >>> for i in range(1, 4):
-    ...     g.add_vertex(i)
-    >>> g.add_edge(1, 2)
-    >>> g.add_edge(2, 3)
-    >>> g.add_edge(1, 3)
-    >>> a_community = {1: g.vertices[1], 2: g.vertices[2]}
-    >>> get_inner_edge_weights(a_community)
-    1
-    >>> a_community = {1: g.vertices[1], 2: g.vertices[2], 3: g.vertices[3]}
-    >>> get_inner_edge_weights(a_community)
-    3
-    >>> g.add_vertex(4)
-    >>> g.add_edge(3, 4)
-    >>> get_inner_edge_weights(community)
-    3
-    >>> a_community = {1: g.vertices[1], 2: g.vertices[2], 3: g.vertices[3], 4: g.vertices[4]}
-    >>> get_inner_edge_weights(a_community)
-    4
-    """
-    edges_sum = 0
-    edge_visited = []  # improve runtime with dictionary?
-    for v in community:
-        vertex = community[v]
-        for u in vertex.neighbours:
-            if {vertex, u} not in edge_visited and u.item in community:
-                edges_sum += 1
-
-            edge_visited.append({vertex, u})
-
-    return edges_sum
-
-
-def get_edge_weights(communities: dict[int, int], outer_edges: list[set]) -> list[tuple[list[int], int]]:
-    """
-    Return a dictionary of edges with their new community ids and weights.
-    Within the tuple, the edges are represented as a list with each element being a vertices and the edge weight is
-    represented as an integer.
-
-    As follows: ([community1 id, community2 id], weight)
-
-    Preconditions
-        - list(communites.values()) == sorted(communites.values())
-        - every e in outer edges is an existing edge in a graph
-
-    >>> ex_communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 2}
-    >>> outer_e = [{5, 2}, {4, 3}]
-    >>> get_edge_weights(ex_communities, outer_e)
-    [([0, 2], 1), ([0, 1], 1)]
-    >>> ex_communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}
-    >>> get_edge_weights(ex_communities, outer_e)
-    [([0, 1], 2)]
-    """
-    edges_dict = {}
-    for edge in outer_edges:
-        edge_name = set()
-        for v in edge:
-            edge_name.add(communities[v])
-
-        edge_name = frozenset(edge_name)
-
-        if edge_name in edges_dict:
-            edges_dict[edge_name] += 1
-        else:
-            edges_dict[edge_name] = 1
-
-    return [(list(key), edges_dict[key]) for key in edges_dict]
+    python_ta.check_all(config={
+        'extra-imports': ['networkx', 'matplotlib.pyplot', 'matplotlib.colors',
+                          'distinctipy', 'Any', 'Union', 'annotations'],
+        'allowed-io': [],
+        'max-line-length': 120,
+        'max-nested-blocks': 4
+    })

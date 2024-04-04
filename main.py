@@ -1,12 +1,11 @@
 from __future__ import annotations
 import pre_processing
-import visualize_graph
-from louvain import louvain_algorithm, graph_to_weighted_graph, get_weighted_graph
-from helper_functions import get_all_members
+from louvain import louvain_algorithm, graph_to_weighted_graph
+from helper_functions import get_all_members, get_weighted_graph
 
 # all_data_vertices is a dictionary that maps id (item for _Vertex instances) to name of the restaurant
-# graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
-graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
+graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
+# graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
 
 # make adjacency matrix
 adjacent_matrix = graph.make_adjacent_matrix()
@@ -67,3 +66,4 @@ for community in the_communities:
 for vertex in graph.vertices:
     graph.vertices[vertex].item = all_data_vertices[vertex]
 
+graph.make_community_graph(vertex_to_community, len(the_communities))

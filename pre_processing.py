@@ -29,3 +29,16 @@ def get_graph(vertices: str, edges: str) -> (Graph, dict[str, str]):
                 g.add_edge(int(row[0]), int(row[1]))
 
     return g, all_data_vertices
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'allowed-io': [],
+        'max-line-length': 120,
+        'max-nested-blocks': 4
+    })

@@ -1,6 +1,4 @@
-from classes import Graph, WeightedGraph, _Vertex, _WeightedVertex, _Community
-from helper_functions import get_weighted_graph, get_edge_weights
-from typing import Optional
+from classes import Graph, WeightedGraph, _Vertex
 
 
 def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
@@ -76,3 +74,16 @@ def graph_to_weighted_graph(graph: Graph) -> WeightedGraph:
             wg.add_edge(u.item, v.item)
 
     return wg
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'allowed-io': [],
+        'max-line-length': 120,
+        'max-nested-blocks': 4
+    })
