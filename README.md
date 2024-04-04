@@ -15,7 +15,7 @@ To run the program on Set 2 (test set), uncomment line 8 in main.py. It should t
 
 ![image](https://github.com/YoyoLiuuu/ArtistNetwork/assets/89408618/58ac8d80-247e-409f-b167-fde1fd573a24)
 
-To run the program on Set 1 (actual set), comment out line 8 and uncomment line 7 in main.py. This will take a very long time (4 to 15+ min, depending on computing power) to run, but once finished it will produce a graph like this: 
+To run the program on Set 1 (actual set), comment out line 8 and uncomment line 7 in main.py. This will take a long time (4~5 min) to run, but once finished it will produce a graph like this: 
 
 ![image](https://github.com/YoyoLiuuu/ArtistNetwork/assets/89408618/42f56172-7787-4325-a11b-a7e498251f92)
 
