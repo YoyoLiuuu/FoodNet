@@ -1,6 +1,11 @@
 """
-This file contains classes and helper functions to carry out the algorithm and make the
-graph
+This file contains classes and helper methods to carry out the louvain algorithm and make the
+graph/social network.
+
+The implementation of classes and many methods were borrowed from Exercise 3 which belongs to the
+2024 CSC111 Teaching Team.
+
+For all additions -> Credit: Yoyo Liu, Manahill Sajid, Allyssa Chiu, Adya Veda Riddhi Revti Gopaul
 """
 from __future__ import annotations
 from typing import Any, Union
@@ -30,7 +35,8 @@ class _Vertex:
     neighbours: set[_Vertex]
 
     def __init__(self, item: Any) -> None:
-        """Initialize a new vertex with the given item.
+        """
+        Initialize a new vertex with the given item.
 
         This vertex is initialized with no neighbours.
         """
@@ -40,6 +46,7 @@ class _Vertex:
     def check_connected(self, target_item: Any, visited: set[_Vertex]) -> bool:
         """Return whether this vertex is connected to a vertex corresponding to the target_item,
         WITHOUT using any of the vertices in visited.
+
         Preconditions:
             - self not in visited
         """
@@ -57,7 +64,8 @@ class _Vertex:
 
 
 class Graph:
-    """A graph used to represent an artist connection network.
+    """
+    A graph used to represent an artist connection network.
     """
     vertices: dict[Any, _Vertex]
 
@@ -66,7 +74,8 @@ class Graph:
         self.vertices = {}
 
     def add_vertex(self, item: Any) -> None:
-        """Add a vertex with the given item to the graph.
+        """
+        Add a vertex with the given item to the graph.
 
         The new vertex is not adjacent to any other vertices.
         Do nothing if the given item is already in this graph.
@@ -75,7 +84,8 @@ class Graph:
             self.vertices[item] = _Vertex(item)
 
     def add_edge(self, item1: Any, item2: Any) -> None:
-        """Add an edge between the two vertices with the given items in this graph.
+        """
+        Add an edge between the two vertices with the given items in this graph.
 
         Raise a ValueError if item1 or item2 do not appear as vertices in this graph.
 
@@ -93,11 +103,11 @@ class Graph:
 
     def get_inner_edge_weights(self, community: dict[int, _Vertex]) -> int:
         """
-       Return the sum of edge weights in a given community set.
+        Return the sum of edge weights in a given community set.
 
-       Recall, when community members are all vertices edge weights are 1. COME BACK
+        Recall, when community members are all vertices edge weights are 1. COME BACK
 
-       Preconditions:
+        Preconditions:
            - all(community[v] in self.vertices for v in community)
            - list(communites.values()) == sorted(communites.values())
 
@@ -146,7 +156,7 @@ class Graph:
        Note: an outer edge is an edge between vertices that are in different communities
 
        Preconditions:
-           - all vertices/communites in the dictionaries are in self.vertices
+           - all(v in self.vertices for dictionary in communites_lst for v in dictionary)
 
         >>> g = WeightedGraph()
         >>> for i in range(1, 6):
@@ -242,8 +252,9 @@ class Graph:
         return dict_lst
 
     def to_networkx(self) -> nx.Graph:
-        """Convert this graph into a networkx Graph.
-           Credit: this function is adapted from exercise 4 of CSC111, with some changes.
+        """
+        Convert this graph into a networkx Graph.
+        Credit: this function is adapted from exercise 4 of CSC111, with some changes.
         """
         graph_nx = nx.Graph()
         for v in self.vertices.values():
@@ -260,7 +271,6 @@ class Graph:
     def make_community_graph(self, communities: dict[str: int], length: int) -> None:
         """
         Outputs a graph of the network, colour-coding the communities and labelling vertices.
-
         """
         g = self.to_networkx()
         pos = nx.circular_layout(g)
@@ -291,7 +301,6 @@ class Graph:
 
     def get_num_edges(self) -> int:
         """Return the number of edges in a graph."""
-
         total_degree = 0
 
         for vertex in self.vertices.values():
@@ -304,6 +313,7 @@ class Graph:
                                   adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
         """
         Return the modularity of the current partitioning of communities in graph.
+
         Preconditions:
             - m != 0
         """
@@ -355,23 +365,23 @@ class Graph:
 
 
 class _WeightedVertex(_Vertex):
-    """A vertex in a social network graph.
+    """
+    A vertex in a social network graph.
 
-        Instance Attributes:
-            - item: The data stored in this vertex, representing a user id
-            - neighbours: The vertices that are adjacent to this vertex (mutual connections)
-            mapped to their edgeweight.
+    Instance Attributes:
+        - item: The data stored in this vertex, representing a user id
+        - neighbours: The vertices that are adjacent to this vertex (mutual connections)
+        mapped to their edgeweight.
 
-        Representation Invariants:
-            - self not in self.neighbours
-            - all(self in u.neighbours for u in self.neighbours)
-
-        """
+    Representation Invariants:
+        - self not in self.neighbours
+        - all(self in u.neighbours for u in self.neighbours)
+    """
     item: Any
     neighbours: dict[_Vertex, Union[int, float]]
 
     def __init__(self, item: Any) -> None:
-        """Initialize a new vertex with the given item and kind.
+        """Initialize a new vertex with the given item.
 
         This vertex is initialized with no neighbours.
         """
@@ -397,6 +407,10 @@ class _Community(_WeightedVertex):
         - weight: the number of edges within the community
         - members: the dictionary of the vertices/nodes items within the community mapped to their
         _Vertex/_Community object
+
+    Representation Invariants:
+        - self not in self.neighbours
+       - all(self in u.neighbours for u in self.neighbours)
     """
     item: Any
     neighbours: dict[_Community, Union[int, float]]
@@ -420,10 +434,6 @@ class WeightedGraph(Graph):
 
     Credit: Large portion of methods and docstrings taken from Exercise 3
     """
-    # Private Instance Attributes:
-    #     - vertices:
-    #         A collection of the vertices contained in this graph.
-    #         Mapping from id to _Community
     vertices: dict[int, _WeightedVertex]
 
     def __init__(self) -> None:
@@ -482,7 +492,8 @@ class WeightedGraph(Graph):
          Return 0 if item1 and item2 are not adjacent.
 
          Preconditions:
-             - item1 and item2 are vertices in this graph
+             - item1 in self.vertices
+             - item2 in self.vertices
 
          Credit: method and docstring taken from Exercise 3
          """
@@ -549,6 +560,12 @@ class WeightedGraph(Graph):
         """
         Return a list of all the communities with its memebers in separate dictionaries with the
         item as the key and the _vertex object as the value
+
+        Preconditons:
+        - list(communites.values()) == sorted(communites.values())
+        - all(community[v] in self.vertices for v in community)
+
+
         >>> communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 2}
         >>> g = WeightedGraph()
             >>> for i in range(1, 6):
@@ -595,6 +612,7 @@ class WeightedGraph(Graph):
     def get_all_edge_weights(self) -> int:
         """
         Return the sum of all edge weights in the graph.
+
         Preconditions:
             - len(self.vertices) > 1
             - at least 1 edge exist in the graph
@@ -610,6 +628,7 @@ class WeightedGraph(Graph):
                                   adjacency_matrix: dict[int, dict[int, int]], m: int) -> float:
         """
         Return the modularity of the current partitioning of communities in graph
+
         Preconditions:
             - m != 0
         """

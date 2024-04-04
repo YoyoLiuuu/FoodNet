@@ -1,3 +1,9 @@
+"""
+This module processes the data from the dataset files into a Graph object.
+
+Credit: Yoyo Liu, Manahill Sajid, Allyssa Chiu, Adya Veda Riddhi Revti Gopaul
+"""
+
 from classes import Graph
 import csv
 
@@ -5,7 +11,12 @@ import csv
 def get_graph(vertices: str, edges: str) -> (Graph, dict[str, str]):
     """
     Create graph from the files.
-    vertices is the file full of vertices, and edges being the path to fie of edges.
+
+    vertices is the file of vertices/users in the social newtowrk.
+    edges is the file of edges, representing direct connections between users.
+
+    Preconditions:
+        - vertices and edges are valid paths to a .txt file
     """
     identifier = 0  # identifier for duplicates, value does not matter, just to distinguish nodes
     g = Graph()

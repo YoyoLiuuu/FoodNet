@@ -1,11 +1,17 @@
+"""
+This module calls the Louvain algorithm on the Graph object representation of the dataset.
+
+Credit: Yoyo Liu, Manahill Sajid, Allyssa Chiu, Adya Veda Riddhi Revti Gopaul
+"""
+
 from __future__ import annotations
 import pre_processing
 from louvain import louvain_algorithm, graph_to_weighted_graph
 from helper_functions import get_all_members, get_weighted_graph
 
 # all_data_vertices is a dictionary that maps id (item for _Vertex instances) to name of the restaurant
-graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
-# graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
+# graph, all_data_vertices = pre_processing.get_graph('test_nodes.txt', 'test_edges.txt')
+graph, all_data_vertices = pre_processing.get_graph('fb-pages-food-nodes.txt', 'fb-pages-food-edges.txt')
 
 # make adjacency matrix
 adjacent_matrix = graph.make_adjacent_matrix()

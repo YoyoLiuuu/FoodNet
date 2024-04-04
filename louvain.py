@@ -1,9 +1,19 @@
+"""
+This module contains the functions required for one pass of the louvain algorithm.
+
+
+Credit: Yoyo Liu, Manahill Sajid, Allyssa Chiu, Adya Veda Riddhi Revti Gopaul
+"""
 from classes import Graph, WeightedGraph, _Vertex
 
 
 def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
     This function detects and forms communities using a modified version of the Louvain Algorithm.
+
+    Preconditions:
+        - graph.vertices != set()
+        - adjacency_matrix is the adjacency matrix for graph
     """
     # initialize each vertex as its own community
     communities = {}
@@ -17,8 +27,8 @@ def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]])
     for vertex in graph.vertices.values():
 
         # merge communities based on modularity calculations
-        communities, curr_modularity = find_best_community(graph, vertex, communities, curr_modularity,
-                                                           adjacency_matrix)
+        communities, curr_modularity = _find_best_community(graph, vertex, communities, curr_modularity,
+                                                            adjacency_matrix)
         # get modularity of new communities
 
     # reassign community numbers - can ignore for larger values of vertices -> runtime
@@ -38,12 +48,16 @@ def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]])
     return sorted_communities, curr_modularity
 
 
-def find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int], init_modularity: float,
-                        adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
+def _find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int], init_modularity: float,
+                         adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
     This function takes a vertex and finds the best community it belongs for the modularity score to be the highest.
     It iterates through all neighbours of the vertex and place the vertex in those communities, finding the modularity
     of each and return the community that yields the highest modularity.
+
+    Preconditions:
+        - graph.vertices != set()
+        - all(v in graph.vertices for v in communites)
     """
     best_community, best_modularity = communities, init_modularity
     neighbours_community = {communities[u] for u in v.neighbours}
@@ -64,6 +78,9 @@ def find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int
 def graph_to_weighted_graph(graph: Graph) -> WeightedGraph:
     """
     This function converts graph to a weighted graph. In the new graph, the edge weight is always one.
+
+    Preconditions:
+        - graph is a valid graph
     """
     wg = WeightedGraph()
 
