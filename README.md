@@ -64,3 +64,13 @@ March 31, 2024, from https://mathworld.wolfram.com/AdjacencyMatrix.html
 
 West Health Institute Revision. “Documentation.” Documentation - Pyvis 0.1.3.1
 Documentation, 2018, pyvis.readthedocs.io/en/latest/documentation.html
+
+
+**Data obtained:**
+  @inproceedings{nr-aaai15,
+      title = {The Network Data Repository with Interactive Graph Analytics and Visualization},
+      author={Ryan A. Rossi and Nesreen K. Ahmed},
+      booktitle = {AAAI},
+      url={http://networkrepository.com},
+      year={2015}
+  }
