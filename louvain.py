@@ -5,18 +5,18 @@ from typing import Optional
 
 def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
-    This function detects and forms communities using a modified version of the Louvain Algorithm
+    This function detects and forms communities using a modified version of the Louvain Algorithm.
     """
     # initialize each vertex as its own community
     communities = {}
     i = 0
-    for v in graph._vertices.values():
+    for v in graph.vertices.values():
         communities[v] = i
         i += 1
 
     curr_modularity = graph.calculate_modularity_graph(communities, adjacency_matrix)
 
-    for vertex in graph._vertices.values():
+    for vertex in graph.vertices.values():
 
         # merge communities based on modularity calculations
         communities, curr_modularity = find_best_community(graph, vertex, communities, curr_modularity,
@@ -43,7 +43,9 @@ def louvain_algorithm(graph: Graph, adjacency_matrix: dict[int, dict[int, int]])
 def find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int], init_modularity: float,
                         adjacency_matrix: dict[int, dict[int, int]]) -> (dict[_Vertex, int], float):
     """
-    docstring
+    This function takes a vertex and finds the best community it belongs for the modularity score to be the highest.
+    It iterates through all neighbours of the vertex and place the vertex in those communities, finding the modularity
+    of each and return the community that yields the highest modularity.
     """
     best_community, best_modularity = communities, init_modularity
     neighbours_community = {communities[u] for u in v.neighbours}
@@ -60,61 +62,17 @@ def find_best_community(graph: Graph, v: _Vertex, communities: dict[_Vertex, int
 
     return best_community, best_modularity
 
+
 def graph_to_weighted_graph(graph: Graph) -> WeightedGraph:
     """
-    Edge weight always one
+    This function converts graph to a weighted graph. In the new graph, the edge weight is always one.
     """
     wg = WeightedGraph()
-    for v in graph._vertices.values():
+
+    for v in graph.vertices.values():
         wg.add_vertex(v.item)
         for u in v.neighbours:
             wg.add_vertex(u.item)
             wg.add_edge(u.item, v.item)
 
     return wg
-
-
-def get_weighted_graph(g: WeightedGraph, communities: dict[int, int]) -> WeightedGraph:
-    """
-    Return the weighted graph given the dictionary of communites, where each community is one node
-
-    The community id will be a tuple with the sum of edge weights in the community and an identifying integer
-
-    >>> communities = {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}
-    >>> g = WeightedGraph()
-    >>> for i in range(1, 6):
-    ...     g.add_vertex(i)
-    >>> g.add_edge(1, 2)
-    >>> g.add_edge(2, 3)
-    >>> g.add_edge(1, 3)
-    >>> g.add_edge(3, 4)
-    >>> g.add_edge(2, 5)
-    >>> new_g = get_weighted_graph(g, communities)
-    >>> new_g.get_weight(0, 1)
-    2
-    """
-    communities_lst = g.make_community_dicts(communities)
-    new_g = WeightedGraph()
-    outer_edges = g.get_all_outer_edges(communities_lst)
-
-    for c in communities_lst:
-        inner_edge_weight = g.get_inner_edge_weights(c)
-        new_g.add_community(get_comm_id(communities, c), inner_edge_weight, c)
-
-    new_outer_edges = get_edge_weights(communities, outer_edges)
-
-    for edges in new_outer_edges:
-        weight = edges[1]
-        comm_ids = edges[0]
-
-        new_g.add_edge(comm_ids[0], comm_ids[1], weight)
-
-    return new_g
-
-
-def get_comm_id(all_communities: dict[int, int], community: [int, _Vertex]):
-    """
-    Return the id of a community
-    """
-    for c in community:
-        return all_communities[c]

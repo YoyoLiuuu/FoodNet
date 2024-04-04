@@ -4,18 +4,23 @@ import csv
 
 def get_graph(vertices: str, edges: str) -> (Graph, dict[str, str]):
     """
-    docstring
+    Create graph from the files.
+    vertices is the file full of vertices, and edges being the path to fie of edges.
     """
+    identifier = 0  # identifier for duplicates, value does not matter, just to distinguish nodes
     g = Graph()
     all_data_vertices = {}
-    # with open('fb-pages-artist-nodes.txt', mode='r', encoding='cp437') as file:
     with open(vertices, mode='r', encoding='cp437') as file:
         reader = csv.reader(file)
         for row in reader:
-            all_data_vertices[int(row[2])] = row[1]
+            if row[1] in all_data_vertices.values():
+                all_data_vertices[int(row[2])] = row[1] + str(identifier)
+                identifier += 1
+            else:
+                all_data_vertices[int(row[2])] = row[1]
+
             g.add_vertex(int(row[2]))
 
-    # with open('fb-pages-artist-edges.txt', mode='r', encoding='cp437') as file:
     with open(edges, mode='r', encoding='cp437') as file:
         reader = csv.reader(file)
         valid_vertices = [key for key in all_data_vertices]
