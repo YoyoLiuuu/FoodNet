@@ -41,7 +41,7 @@ Jayawickrama, Thamindu Dilshan. “Community Detection Algorithms.” Medium,
 Towards Data Science, 29 Jan. 2021, towardsdatascience.com/community-detection-
 algorithms-9bd8951e7dae.
 
-NetSci 06-2 Modularity and the Louvain Method. (2021, September 21). Www.youtube.com.
+NetSci 06-2 Modularity and the Louvain Method. (2021, September 21). www.youtube.com.
 https://www.youtube.com/watch?v=QfTxqAxJp0U
 
 Rossi, Ryan A., and Nesreen K. Ahmed. “The Network Data Repository with
@@ -52,7 +52,7 @@ networkrepository.com/fb-pages-artist.php.
 Documentation, 28 Oct. 2023, networkx.org/documentation/stable/.
 
 Stanford CS224W: Machine Learning with Graphs — 2021 — Lecture 13.3 -
-Louvain Algorithm. (2021, May 25). Www.youtube.com.
+Louvain Algorithm. (2021, May 25). www.youtube.com.
 https://www.youtube.com/watch?v=0zuiLBOIcsw
 
 Blondel, Vincent D, Guillaum, Jean-Loup, Lambiotte, Renaud and Lefebvre1,
