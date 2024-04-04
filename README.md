@@ -10,4 +10,6 @@ Set 1 is the actual data for FoodNet, corresponding to 620 different restaurants
 
 Set 2 is a test set in similar format as FoodNet data. However, there are only 17 vertices and 27 vertices. This significantly reduces the runtime, and an appropriate graph will be produced in an instance! 
 
-To run the program on Set 1, uncomment the 
+To run the program on Set 2 (test set), uncomment line 8 in main.py. It should take less than 10 seconds for the program to produce a graph. The graph will look something like this: 
+
+![image](https://github.com/YoyoLiuuu/ArtistNetwork/assets/89408618/58ac8d80-247e-409f-b167-fde1fd573a24)
