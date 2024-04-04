@@ -28,6 +28,7 @@ To run the program, simply run main.py. This can be done by calling 'python3 mai
 
 
 **References**
+
 Aric A. Hagberg, Daniel A. Schult and Pieter J. Swart, “Exploring network structure,
 dynamics, and function using NetworkX”, in Proceedings of the 7th Python in
 Science Conference (SciPy2008), G ̈ael Varoquaux, Travis Vaught, and Jarrod
